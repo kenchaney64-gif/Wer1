@@ -1,0 +1,135 @@
+
+;;;
+;;;
+;; Program : Homework #1 "parlo"
+;; Author/Student : Kenneth Chaney
+;; Class : CSCI 3210s001 Fall 2003
+;; Date : 10/01/03
+;; Contact : kcc0025@csci.unt.edu
+;;;
+;;;
+;; To run : (load "parlo.txt") from clisp prompt
+;;;
+;; This program is designed to take input from the user
+;; and respond in an assigned manner. The program
+;; consists of a setup initialization section, an outer
+;; control loop and an inner processing loop. User input is
+;; is placed into a list, evaluated and a response is
+;; formulated according to 7 rules in numerical order.
+;;;
+
+
+(let* parlo                                ;program start
+
+                                           ;initialization of lists
+      (setq goodbye '(bye))
+      (setq second_person '(you computer jerk creep))
+      (setq interog_list '(what where when why how if who are can))
+      (setq hist_list 'nil)
+      (setq inword 'nil)
+
+
+                                           ;session setup
+  
+  (format t "~%~%input must be enclosed in parenthesis - (...)")
+  (format t "~%~%other punctuation not required~%~%")
+  (format t "~%type \"(bye)\" at any \"user prompt >\" to exit~%~%" )
+  (format t "~%~%hello, what would you like to discuss with me?~%~%")
+
+
+
+ (loop                                     ;outer control loop
+
+                                           ;these values reset by loop
+  (setq inlist 'nil)                       ;input list
+  (setq spew_hate 'nil)                    ;hate output list
+  
+  (format t "~%user prompt >")             ;prompt
+                                        
+  (setq inlist (read))                     ;get input
+
+  (format t "~%~%")
+
+  (loop                                    ;loop puts input into inlist
+                                           ;and processes rules
+    (setq inword (car inlist))
+    (setq l_length (length inlist))
+
+                                           ;apply rules to first word
+  
+    (cond                                     
+     ((equal inlist goodbye)               ;rule 1 
+      (format t "C\'YA!~%~%~%")
+      (return))
+                                           ;rule 2
+     
+     ((member inword second_person)
+      (format t "WE ARE TALKING ABOUT YOU NOT ME~%~%")
+      (return))
+                                           ;rule 3
+     
+     ((member inword interog_list)
+      (format t "PLEASE LET ME ASK THE QUESTIONS~%~%")
+      (return))
+         
+     
+     ((member 'hate inlist)                ;rule 4 
+      (loop
+        (if (equal (list-length inlist) 0) (return))
+        (cond
+         ((equal inword 'hate)
+          (push (cdr inlist) hist_list)    ;push the hist entry
+          (return))
+         (t (setq inlist (cdr inlist))     ;parse for entry
+            (setq inword (car inlist)))))
+      (cond
+       ((> (list-length hist_list) 2)      ;test for hist entries
+        (format t "WHY ARE YOU SO NEGATIVE~%~%")
+        (setq hist_list 'nil))             ;clear the history list
+       (t (format t "WHY DO YOU HATE")
+          (setq inlist (cdr inlist))       ;make the output
+          (loop
+            (if (equal (list-length inlist) 0) (return))
+            (format t " ~s" (pop inlist))) ;print hate object
+          (format t "~%~%")))
+      (return))                            ;return from rule 4
+         
+     
+     ((member 'am inlist)                  ;rule 5
+      (loop
+        (if (equal (list-length inlist) 0) (return))
+        (cond
+         ((equal inword 'am)
+          (setq inlist (cdr inlist))       ;find output
+          (format t "WHY ARE YOU ")
+          (loop
+            (if (equal (list-length inlist) 0) (return))
+            (format t "~s " (pop inlist))) ;print
+          (format t "~%~%"))
+         (t (setq inlist (cdr inlist))     ;parse 
+            (setq inword ( car inlist)))))
+      (return))                            ;return from 5
+         
+     
+     (t (format t "TELL ME MORE")          ;rule 6 no history
+        (cond
+         ((> (list-length hist_list) 0)    ;rule 7 history entry
+          (format t " ABOUT")
+          (cond 
+           ((equal (list-length hist_list) 1)     ;first hist entry
+            (setq spew_hate  hist_list))
+           (t (setq spew_hate (cdr hist_list))))  ;2nd hist entry
+          (loop
+            (if (equal (list-length spew_hate) 0) (return))
+            (format t " ~s" (pop spew_hate)))     ;print the entry
+          (format t "~%~%")
+          (cond
+           ((equal (list-length hist_list) 1)     ;remove 1st entry
+            (setq hist_list 'nil))
+           (t (setq hist_list (car hist_list)))))
+         (t (format t "~%~%")))
+        (return))))                        ;return from rule 6-7
+            
+                           
+
+  (when (equal inlist goodbye) (return)))) ;exit parlo
